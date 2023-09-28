@@ -1,7 +1,7 @@
 all: main
 
 CC = clang
-override CFLAGS += -g -Wno-everything -pthread -lm
+override CFLAGS += -O3 -Wno-everything -pthread -lm
 
 SRCS = ./src/auxiliar.c ./src/processos.c ./src/sequencial.c ./src/threads.c
 PROGRAMS = $(notdir $(basename $(SRCS)))

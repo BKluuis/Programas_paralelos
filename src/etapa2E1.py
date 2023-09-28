@@ -46,7 +46,7 @@ iteration = 0
 
 while current_time < 120.0:
   #Alterar esses caminhos para onde ficam os resultados de seus respectivos programas, irá apagar tudo dentro deles
-  #os.system("rm -f ./mat/threads/* ./mat/processos/*") 
+  os.system("rm -f ./mat/threads/* ./mat/processos/*") 
 
   mat_size.append(100 * (2**iteration))
   seq_time.append(0)
