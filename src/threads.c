@@ -17,6 +17,11 @@ typedef struct iarray
   int *elements;
 } iarray;
 
+typedef struct t_return{
+  iarray array;
+  float time;
+} t_return;
+
 Matrix *matrix1 = NULL;
 Matrix *matrix2 = NULL;
 Matrix *result = NULL;
@@ -70,7 +75,7 @@ void matrixWrite(const char *file_name, Matrix *matrix, iarray *indexes, float t
     printf("Erro ao escrever matriz\n");
 
   fprintf(file, "%d %d\n", matrix->row, matrix->col);
-  for (int i = 0; i <= indexes->size; ++i)
+  for (int i = 0; i < indexes->size; ++i)
   {
     int x = indexes->elements[i] / matrix->row;
     int y = indexes->elements[i] % matrix->row;
@@ -88,7 +93,7 @@ void *calculate_elements(void *arg)
   struct timespec _start;
 
   clock_gettime(CLOCK_THREAD_CPUTIME_ID, &_start);
-  for (int i = 0; i <= indexes->size; i++)
+  for (int i = 0; i < indexes->size; i++)
   {
     int x = indexes->elements[i] / result->row;
     int y = indexes->elements[i] % result->row;
@@ -104,11 +109,10 @@ void *calculate_elements(void *arg)
   clock_gettime(CLOCK_THREAD_CPUTIME_ID, &_end);
   float total_time = (float)(_end.tv_sec - _start.tv_sec) + (float)(_end.tv_nsec - _start.tv_nsec) / 1000000000;
 
-  char file_name[30];
-  sprintf(file_name, "./mat/threads/%d.txt", indexes->elements[0]);
-  matrixWrite(file_name, result, indexes, total_time);
+  t_return *r = {indexes, 0};
+  r->time = total_time;
 
-  pthread_exit(NULL);
+  pthread_exit((void*)r);
 }
 
 int main(int argc, char *argv[])
@@ -140,7 +144,7 @@ int main(int argc, char *argv[])
     {
       if ((p * i + j) >= (result->row * result->col))
         break;
-      arg->size = j;
+      arg->size = j + 1;
       arg->elements[j] = (p * i + j);
     }
     pthread_create(&threads[i], NULL, calculate_elements, (void *)arg);
@@ -149,6 +153,10 @@ int main(int argc, char *argv[])
   for (int i = 0; i < threads_length; ++i)
   {
     pthread_join(threads[i], &thread_return);
+
+    char file_name[30];
+    sprintf(file_name, "./mat/threads/%d.txt", ((t_return*)thread_return)->array.elements[0]);
+    matrixWrite(file_name, result, &((t_return*)thread_return)->array, ((t_return*)thread_return)->time);
   }
 
   matrixFree(&matrix1);

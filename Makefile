@@ -15,9 +15,10 @@ $(PROGRAMS):
 debug:
 	$(CC) $(CFLAGS) -O0 $(SRCS) -o "$@"
 
-r: clean 
+r: b clean main
+
+b:  
 	rm -f $(BIN)/*
-	make
 
 clean:
 	rm -f ./mat/threads/* ./mat/processos/* ./mat/*.txt
