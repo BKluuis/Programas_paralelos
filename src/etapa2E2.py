@@ -2,6 +2,7 @@ import os
 import subprocess
 import math
 import matplotlib.pyplot as plt
+import time
 
 def get_time(file_name):
   with open(file_name, 'rb') as f:
@@ -34,16 +35,18 @@ pro_mat = abs_path + "mat/processos/"
 seq_mat = abs_path +"mat/sequencial.txt"
 
 mat_size = 3200
-seq_time = []
 pro_time = []
 thr_time = []
 n = [32,24,18,10,8,6,4,2]
+
+# thr_time = [0.0, 0.0, 8.7258057 , 7.3496473 , 9.1806571 , 22.9132896, 18.705125 , 19.8938228, 23.3714966, 44.7086938]
+# pro_time = [0.0, 0.0, 10.6525795, 10.2134915, 11.5543804, 23.9505692, 23.8406654, 25.3647361, 35.8967163, 59.6054581]
 
 iteration = 0
                     ### IMPORTANTE ###
 # Apague qualquer arquivo txt anterior antes de rodar o programa #
 
-for i in exec:
+for i in n:
   os.system("rm -f ./mat/threads/* ./mat/processos/*")
 
   pro_time.append(0)
@@ -53,15 +56,21 @@ for i in exec:
   
   for i in range(3):
     print("Iniciando iteração ", i, "\nExecutando processos")
+    t1 = time.time()
     process = subprocess.Popen([pro_prog, mat1, mat2, p])
     process.wait()
+    t2 = time.time()
     print("Executando threads")
+    t3 = time.time()
     threads = subprocess.Popen([thr_prog, mat1, mat2, p])
     threads.wait()
+    t4 = time.time()
     
-    pro_time[iteration] += biggest_time(pro_mat)    
-    thr_time[iteration] += biggest_time(thr_mat)
-  
+    # pro_time[iteration] += biggest_time(pro_mat)    
+    # thr_time[iteration] += biggest_time(thr_mat)
+    pro_time[iteration] += t2 - t1
+    thr_time[iteration] += t4 - t3
+
   pro_time[iteration] = round(pro_time[iteration] / 10, 8)
   thr_time[iteration] = round(thr_time[iteration] / 10, 8)
 
@@ -79,4 +88,4 @@ plt.plot(n, thr_time, color='green', label='Threads')
 plt.plot(n, pro_time, color='blue', label='Processos')
 plt.grid(True)
 plt.legend()
-plt.savefig("./grafico2.png")
+plt.savefig("./grafico2_1.png")

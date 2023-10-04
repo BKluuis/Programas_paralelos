@@ -2,6 +2,7 @@ import os
 import subprocess
 import math
 import matplotlib.pyplot as plt
+import time
 
 def get_time(file_name):
   with open(file_name, 'rb') as f:
@@ -27,11 +28,11 @@ aux_prog = abs_path + "bin/auxiliar"      # Programa auxiliar
 seq_prog = abs_path + "bin/sequencial"    # Programa Sequencial
 thr_prog = abs_path + "bin/threads"       # Programa Threads
 pro_prog = abs_path + "bin/processos"     # Programa Processos
-mat1 = abs_path + "mat/matriz1.txt"       # Matriz de entrada 1
-mat2 = abs_path + "mat/matriz2.txt"       # Matriz de entrada 2
-thr_mat = abs_path + "mat/threads/"       # Pasta de resultados do programa Threads
-pro_mat = abs_path + "mat/processos/"     # Pasta de resultados do programa Processos
-seq_mat = abs_path +"mat/sequencial.txt"  # Local do arquivo resultado do programa Sequencial
+mat1     = abs_path + "mat/matriz1.txt"   # Matriz de entrada 1
+mat2     = abs_path + "mat/matriz2.txt"   # Matriz de entrada 2
+thr_mat  = abs_path + "mat/threads/"      # Pasta de resultados do programa Threads
+pro_mat  = abs_path + "mat/processos/"    # Pasta de resultados do programa Processos
+seq_mat  = abs_path + "mat/sequencial.txt" # Local do arquivo resultado do programa Sequencial
 
 mat_size = []
 seq_time = []
@@ -62,17 +63,25 @@ while current_time < 120.0:
   
   #Realiza as 10 multiplicações por matriz, pode fazer os programas demorarem muito, diminua se necessário
   for i in range(10):
+    print(f"Iteração {i}\n")
+    t1 = time.time()
     sequencial = subprocess.Popen([seq_prog, mat1, mat2])
     sequencial.wait()
+    t2 = time.time()
     process = subprocess.Popen([pro_prog, mat1, mat2, p])
     process.wait()
+    t3 = time.time()
     threads = subprocess.Popen([thr_prog, mat1, mat2, p])
     threads.wait()
+    t4 = time.time()
     
-    seq_time[iteration] += get_time(seq_mat)
-    thr_time[iteration] += biggest_time(thr_mat)
-    pro_time[iteration] += biggest_time(pro_mat)    
-  
+    # seq_time[iteration] += get_time(seq_mat)
+    # thr_time[iteration] += biggest_time(thr_mat)
+    # pro_time[iteration] += biggest_time(pro_mat)    
+    seq_time[iteration] += t2 - t1
+    thr_time[iteration] += t4 - t3
+    pro_time[iteration] += t3 - t2 
+
   seq_time[iteration] = round(seq_time[iteration] / 10, 8)
   thr_time[iteration] = round(thr_time[iteration] / 10, 8)
   pro_time[iteration] = round(pro_time[iteration] / 10, 8)
@@ -91,12 +100,13 @@ with open("resultados.txt", "w") as f:
    f.write(str(thr_time) + "\n")
    f.write(str(pro_time))
 
-plt.xticks(mat_size, rotation=30)
-plt.xlabel("Tamanho da matriz (X * X)")
-plt.ylabel("Tempo (em segundos)")
 plt.plot(mat_size, seq_time, color='red', label='Sequencial')
 plt.plot(mat_size, thr_time, color='green', label='Threads')
 plt.plot(mat_size, pro_time, color='blue', label='Processos')
+plt.xticks(mat_size, rotation=30)
+plt.xlabel("Tamanho da matriz (X * X)")
+plt.ylabel("Tempo (em segundos)")
 plt.grid(True)
 plt.legend()
-plt.savefig("./grafico.png")
+plt.gcf().subplots_adjust(bottom=0.15)
+plt.savefig("./grafico_1.png")
